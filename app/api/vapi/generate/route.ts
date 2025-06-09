@@ -1,14 +1,18 @@
 import { getRandomInterviewCover } from "@/lib/utils"
+import { google } from '@ai-sdk/google'
+import { db } from "@/firebase/admin"
+import { generateText } from 'ai'
+
 
 export async function GET() {
-    return Response.json({sucess:true, data:'TH'})
+    return Response.json({sucess:true, data:'Thank you'})
 }
 
-export async function POST() {
-    const {type, role, level, techstack, amount, userid } = await result.json()
+export async function POST(request: Request) {
+    const {type, role, level, techstack, amount, userid } = await request.json()
 
     try {
-        const {text: questions } = await genrateText({ 
+        const {text: questions } = await generateText({ 
             model: google('gemini-2.0-flash-001'),
             prompt : `Prepare questions for a job interview.
         The job role is ${role}.
