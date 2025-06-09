@@ -1,0 +1,214 @@
+{
+  "name": "interVu.AI",
+  "nodes": [
+    {
+      "name": "Say",
+      "type": "conversation",
+      "isStart": true,
+      "metadata": {
+        "position": {
+          "x": 5.3333282470703125,
+          "y": 55.35250473022461
+        }
+      },
+      "prompt": "hellow, {{ username }}! Let's prepare for an interview. I'll ask you a few questions and generate a perfect interview just for you. Are you ready?",
+      "model": {
+        "model": "gpt-4o",
+        "provider": "openai",
+        "maxTokens": 1000,
+        "temperature": 0.7
+      },
+      "messagePlan": {
+        "firstMessage": "Hey there!"
+      }
+    },
+    {
+      "name": "Gather information",
+      "type": "conversation",
+      "metadata": {
+        "position": {
+          "x": 9.97241652439979,
+          "y": 417.59991984680624
+        }
+      },
+      "prompt": "Gather Information for preparing the interview.",
+      "model": {
+        "model": "gpt-4o",
+        "provider": "openai",
+        "maxTokens": 1000,
+        "temperature": 0.7
+      },
+      "variableExtractionPlan": {
+        "output": [
+          {
+            "enum": [],
+            "type": "string",
+            "title": "role",
+            "description": "What role would you like to train for?\n"
+          },
+          {
+            "enum": [],
+            "type": "string",
+            "title": "type",
+            "description": "Are you aiming for a technical, behavioural or mixed interview?"
+          },
+          {
+            "enum": [],
+            "type": "string",
+            "title": "level",
+            "description": "The experience level."
+          },
+          {
+            "enum": [],
+            "type": "string",
+            "title": "techstack",
+            "description": "The list of technologies to cover during the job interview."
+          },
+          {
+            "enum": [],
+            "type": "string",
+            "title": "amount",
+            "description": "How many questions would you like me to prepare for you?"
+          }
+        ]
+      },
+      "messagePlan": {
+        "firstMessage": ""
+      }
+    },
+    {
+      "name": "API Request",
+      "type": "tool",
+      "metadata": {
+        "position": {
+          "x": 9.97241652439979,
+          "y": 667.5999198468062
+        }
+      },
+      "tool": {
+        "url": "https://intervu-ai-gbcw.vercel.app/api/vapi/generate",
+        "body": {
+          "type": "object",
+          "required": [
+            "role",
+            "type",
+            "level",
+            "techstack",
+            "amount",
+            "userid"
+          ],
+          "properties": {
+            "role": {
+              "type": "string",
+              "value": "{{ role }}",
+              "description": ""
+            },
+            "type": {
+              "type": "string",
+              "value": "{{type}}",
+              "description": ""
+            },
+            "level": {
+              "type": "string",
+              "value": "{{level}}",
+              "description": ""
+            },
+            "amount": {
+              "type": "string",
+              "value": "{{amount}}",
+              "description": ""
+            },
+            "userid": {
+              "type": "string",
+              "value": "{{userid}}",
+              "description": ""
+            },
+            "techstack": {
+              "type": "string",
+              "value": "{{techstack}}",
+              "description": ""
+            }
+          }
+        },
+        "type": "apiRequest",
+        "method": "POST",
+        "function": {
+          "name": "untitled_tool",
+          "parameters": {
+            "type": "object",
+            "required": [],
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "name": "conversation_1749308358362",
+      "type": "conversation",
+      "metadata": {
+        "position": {
+          "x": 9.97241652439979,
+          "y": 917.5999198468062
+        }
+      },
+      "prompt": "Say that the interview has been generated and thank the user for the call.",
+      "model": {
+        "model": "gpt-4o",
+        "provider": "openai",
+        "maxTokens": 1000,
+        "temperature": 0.7
+      },
+      "messagePlan": {
+        "firstMessage": ""
+      }
+    },
+    {
+      "name": "hangup_1749308436485",
+      "type": "tool",
+      "metadata": {
+        "position": {
+          "x": 12.283376496029604,
+          "y": 1209.3517143427716
+        }
+      },
+      "tool": {
+        "type": "endCall"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "Say",
+      "to": "Gather information",
+      "condition": {
+        "type": "ai",
+        "prompt": "user said yes"
+      }
+    },
+    {
+      "from": "Gather information",
+      "to": "API Request",
+      "condition": {
+        "type": "ai",
+        "prompt": "if the user said yes"
+      }
+    },
+    {
+      "from": "API Request",
+      "to": "conversation_1749308358362",
+      "condition": {
+        "type": "ai",
+        "prompt": "if the user said yes"
+      }
+    },
+    {
+      "from": "conversation_1749308358362",
+      "to": "hangup_1749308436485",
+      "condition": {
+        "type": "ai",
+        "prompt": "if the user said yes"
+      }
+    }
+  ],
+  "globalPrompt": ""
+}

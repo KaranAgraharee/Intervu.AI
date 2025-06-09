@@ -91,49 +91,60 @@ const AuthForm = ({ type }: { type: FormType }) => {
 
 
   return (
-    <div className="card-border lg:min-w-[566px] m-auto">
-      <div className='flex flex-col gap-6 card py-14 px-10'>
-        <div className="flex flex-row gap-2 justify-center items-center">
+    <div className="w-full max-w-[566px] mx-auto px-4 sm:px-6">
+      <div className='flex flex-col gap-8 card py-8 sm:py-12 px-6 sm:px-10'>
+        <div className="flex flex-col items-center gap-4">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="logo"
-            height={32}
-            width={32}
+            height={1000}
+            width={1000}
+            className="w-48 h-32 sm:w-64 sm:h-42 object-contain"
+            priority
           />
-          <h2 className="text-primary-100">Intro</h2>
+          <h1 className="text-2xl sm:text-3xl font-bold text-center text-light-100">Practice job interview with AI</h1>
         </div>
-        <h1>Practice job interview with AI</h1>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full mt-4 form   space-y-6">
-            {!isSignIn && (<FormField
-              control={form.control}
-              name='name'
-              label='Name'
-              placeholder='Your name' />)}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+            {!isSignIn && (
+              <FormField
+                control={form.control}
+                name='name'
+                label='Name'
+                placeholder='Your name'
+              />
+            )}
             <FormField
               control={form.control}
               name='email'
               label='Email'
               placeholder='Your email address'
-              type='email' />
+              type='email'
+            />
             <FormField
               control={form.control}
               name='password'
               label='Password'
               placeholder='Enter your Password' 
-              type='password'/>
-            <Button type="submit">Sign In</Button>
+              type='password'
+            />
+            <Button 
+              type="submit" 
+              className="w-full py-6 text-base font-bold bg-primary-200 text-dark-100 hover:bg-primary-200/80 rounded-full"
+            >
+              {isSignIn ? 'Sign In' : 'Sign Up'}
+            </Button>
           </form>
         </Form>
-        <p className="text-centre">{
-          isSignIn ? 'No account yet?' : 'Have an account already'}
-          <Link href={
-            !isSignIn ? '/sign-in' : 'sign-up'
-          }>
-            {
-              !isSignIn ? 'Sign In' : 'Sign Up'
-            }
+
+        <p className="text-center text-sm sm:text-base text-light-100">
+          {isSignIn ? 'No account yet?' : 'Have an account already?'}{' '}
+          <Link 
+            href={!isSignIn ? '/sign-in' : '/sign-up'}
+            className="text-primary-100 hover:text-primary-200 font-medium ml-1 transition-colors"
+          >
+            {!isSignIn ? 'Sign In' : 'Sign Up'}
           </Link>
         </p>
       </div>
