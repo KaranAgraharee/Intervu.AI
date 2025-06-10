@@ -3,10 +3,16 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { dummyInterviews } from '@/constants'
 import InterviewCard from '@/component/UI/InterviewCard'
+import { getCurrentUser, getInterviewByUserId } from '@/lib/action/auth.action'
 
 
 
-const page = () => {
+const page = async() => {
+  const user = await getCurrentUser()
+  const userInterview = await getInterviewByUserId(user?.id)
+
+  const hasPastInterviews = userInterview && userInterview.length > 0
+  
   return (
     <>
       <section className='card-cta'>
@@ -30,19 +36,21 @@ const page = () => {
       <section className='flex flex-col gap'>
         <h2>Your Interviews</h2>
         <div className="interview-section">
-          {dummyInterviews.map((interview)=>(
-            <InterviewCard {...interview } key={interview.id}/>
-          ))}
-          {/* <p>You have&apos;t taken any interview yet</p> */}
+          {hasPastInterviews ? userInterview?.map((interview) => (
+            <InterviewCard {...interview} key={interview.id}/>
+          )) : (
+            <p>You haven&apos;t taken any interview yet</p>
+          )}
         </div>
       </section>
       <section>
         <h2 className='flex flex-col gap-6 mt-8'>Take an Interview</h2>
         <div className='interview-section'>
-          {dummyInterviews.map((interview)=>(
-            <InterviewCard {...interview } key={interview.id}/>
-          ))}
-        <p> There are no interview available</p>
+          {dummyInterviews.length > 0 ? dummyInterviews.map((interview) => (
+            <InterviewCard {...interview} key={interview.id}/>
+          )) : (
+            <p>There are no interviews available</p>
+          )}
         </div>
       </section>
     </>

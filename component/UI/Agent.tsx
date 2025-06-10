@@ -32,12 +32,12 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
     const onCallStart = () => setCallStatus(CallStatus.ACTIVE)
     const onCallEnd = () => setCallStatus(CallStatus.FINISHED)
 
-    const onMessage = (message : Message) =>{
-      if(message.type==='transcript' && message.transcriptType === 'final'){
-        const newMessage = {role: message.role, content:message.transcript}
-        setMessages((prev)=>[...prev, newMessage])
+    const onMessage = (message: Message) => {
+      if (message.type === 'transcript' && message.transcriptType === 'final') {
+        const newMessage = { role: message.role, content: message.transcript }
+        setMessages((prev) => [...prev, newMessage])
       }
-    } 
+    }
     const onSpeechStart = () => setIsSpeaking(true)
     const onSpeechEnd = () => setIsSpeaking(false)
     const onError = (error: Error) => {
@@ -51,7 +51,7 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
     vapi.on('speech-start', onSpeechStart)
     vapi.on('speech-end', onSpeechEnd)
     vapi.on('error', onError)
-  
+
     return () => {
       vapi.off('call-start', onCallStart)
       vapi.off('call-end', onCallEnd)
@@ -61,15 +61,38 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
       vapi.off('error', onError)
     }
   }, [])
-  
+
+  const interview = async () => {
+    await fetch('http://localhost:3000/api/vapi/generate ', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        messages,
+        userId,
+      }),
+    })
+      .then((response) => response.json())
+      .then((responseData) => {
+        console.log('Success:', responseData);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      })
+  }
+
   useEffect(() => {
-    if(callStatus === CallStatus.FINISHED) router.push('/')
+    if (callStatus === CallStatus.FINISHED) {
+      interview()
+      router.push('/')
+    }
   }, [messages, callStatus, type, userId])
 
-  const handleCall = async() => {
+  const handleCall = async () => {
     try {
       setCallStatus(CallStatus.CONNECTING)
-      
+
       if (!process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID) {
         throw new Error('Vapi workflow ID is not configured')
       }
@@ -85,17 +108,14 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
       setCallStatus(CallStatus.INACTIVE)
     }
   }
-  
-  const handleDisconnect = async() => {
-    setCallStatus(CallStatus.FINISHED)
 
+  const handleDisconnect = async () => {
+    setCallStatus(CallStatus.FINISHED)
     vapi.stop()
   }
 
   const latestMessage = messages[messages.length - 1]?.content
-
   const isCallInactiveOrFinished = callStatus === CallStatus.INACTIVE || callStatus === CallStatus.FINISHED
-
 
   return (
     <>
@@ -115,20 +135,18 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
           </div>
         </div>
       </div>
-      {messages.length>0 && (
+      {messages.length > 0 && (
         <div className='transcript-border'>
-
           <div className='transcript'>
-             <p key= {latestMessage} className={cn('transitiom-opacity duration-500 opacity-0', 'animate-fadeIn opacity-100')}>{latestMessage}</p>
-             </div>
+            <p key={latestMessage} className={cn('transitiom-opacity duration-500 opacity-0', 'animate-fadeIn opacity-100')}>{latestMessage}</p>
+          </div>
         </div>
       )}
       <div className="w-full flex justify-center">
         {callStatus !== 'ACTIVE' ? (
           <button className='relative btn-call' onClick={handleCall}>
-            <span className={cn('absolute animate-ping rounded-full opacity-75', callStatus !== 'CONNECTING' && 'hidden') } />
-              {isCallInactiveOrFinished ? 'Call' : '...'}
-
+            <span className={cn('absolute animate-ping rounded-full opacity-75', callStatus !== 'CONNECTING' && 'hidden')} />
+            {isCallInactiveOrFinished ? 'Call' : '...'}
             <span></span>
           </button>
         ) : (
