@@ -149,3 +149,32 @@ export async function getInterviewByUserId(
     return null;
   }
 }
+export async function getLatestInterviews(
+  params: GetLatestInterviewsParams
+): Promise<Interview[] | null> {
+  const { userId, limit = 20 } = params
+
+  try {
+    const interviewCollection: CollectionReference<DocumentData> =
+      db.collection("interviews");
+
+    const snapshot = await interviewCollection
+      .orderBy("createdAt", "desc")
+      .where("finalized", "==", true)
+      .where("userId", "!=", userId)
+      .limit(limit)
+      .get();
+
+    if (snapshot.empty) return [];
+
+    const interviews = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Interview[];
+
+    return interviews;
+  } catch (error) {
+    console.error("Error fetching interviews:", error);
+    return null;
+  }
+}
