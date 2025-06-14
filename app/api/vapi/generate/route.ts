@@ -4,10 +4,6 @@ import { db } from "@/firebase/admin"
 import { generateText } from 'ai'
 
 
-export async function GET() {
-    return Response.json({sucess:true, data:'Thank you'})
-}
-
 export async function POST(request: Request) {
     const {type, role, level, techstack, amount, userId } = await request.json()
 
@@ -29,7 +25,6 @@ export async function POST(request: Request) {
         `,
         })
 
-
         const interview = {
             userId, role, type, level,
             techstack: techstack.split(','),
@@ -39,12 +34,14 @@ export async function POST(request: Request) {
             createdAt: new Date().toISOString()
         }
         
-        await db.collection('interviews').add(interview)
+        const interviewRef = await db.collection('interviews').add(interview)
+        
+        // Send end meeting message
+        await sendEndMeetingMessage(userId, interviewRef.id)
 
-        return Response.json({ sucess: true}, {status:200})
+        return Response.json({ success: true, interviewId: interviewRef.id }, {status:200})
     } catch (error) {
         console.log(error)
-        return Response.json({ sucess:false, error}, {status:500})
+        return Response.json({ success: false, error}, {status:500})
     }
-    
 }

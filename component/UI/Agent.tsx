@@ -63,13 +63,17 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
   }, [])
 
   const interview = async () => {
-    await fetch('http://localhost:3000/api/vapi/generate ', {
+    const transcript = (turns: { role: string; content: string }[]) => {
+      return turns.map(turn => `${turn.role}: ${turn.content}`).join('\n')
+    }
+    console.log("trnscript",transcript)
+    await fetch('http://localhost:3000/api/analyze-transcript/route.ts ', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        messages,
+        transcript,
         userId,
       }),
     })
@@ -88,6 +92,10 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
       router.push('/')
     }
   }, [messages, callStatus, type, userId])
+
+    console.log("Message",messages)
+
+  
 
   const handleCall = async () => {
     try {
@@ -110,8 +118,9 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
   }
 
   const handleDisconnect = async () => {
+    interview()
     setCallStatus(CallStatus.FINISHED)
-    vapi.stop()
+    vapi.stop()    
   }
 
   const latestMessage = messages[messages.length - 1]?.content
@@ -147,7 +156,6 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
           <button className='relative btn-call' onClick={handleCall}>
             <span className={cn('absolute animate-ping rounded-full opacity-75', callStatus !== 'CONNECTING' && 'hidden')} />
             {isCallInactiveOrFinished ? 'Call' : '...'}
-            <span></span>
           </button>
         ) : (
           <button className='btn-disconnect' onClick={handleDisconnect}>

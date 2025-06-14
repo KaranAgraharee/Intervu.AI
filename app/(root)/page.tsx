@@ -2,7 +2,8 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import InterviewCard from '@/component/UI/InterviewCard'
-import { getCurrentUser, getInterviewByUserId, getLatestInterviews } from '@/lib/action/auth.action'
+import { getCurrentUser } from '@/lib/action/auth.action'
+import { getInterviewByUserId, getLatestInterviews, getInterviewById } from '@/lib/action/general.action'
 
 
 
